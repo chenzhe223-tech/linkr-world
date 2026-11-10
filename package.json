@@ -1,0 +1,30 @@
+{
+  "name": "linkr-world",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Link-R World — 自由行 AI 行程工作台（前端可交互原型）",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "single": "vite build && node scripts/inline.mjs",
+    "verify": "node scripts/verify.mjs",
+    "preview": "vite preview --port 4173",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.0.14",
+    "html2canvas": "^1.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}

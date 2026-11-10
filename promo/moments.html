@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>LINK-R WORLD · 朋友圈九宫格</title>
+<style>
+  :root {
+    --navy: #0B3A5B;
+    --ink: #0A1622;
+    --paper: #F6F3EE;
+    --gold: #C8862F;
+    --teal: #4F7F78;
+    --plum: #7C5A82;
+    --line: rgba(255, 255, 255, 0.14);
+    --txt: #F3EFE8;
+    --sub: rgba(243, 239, 232, 0.62);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1c1c1e; font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif; }
+  .board { display: flex; flex-direction: column; gap: 28px; padding: 28px; }
+
+  .card {
+    width: 1080px; height: 1080px; position: relative; overflow: hidden;
+    background:
+      radial-gradient(1200px 800px at 85% -10%, rgba(200, 134, 47, 0.16), transparent 60%),
+      radial-gradient(900px 700px at -10% 110%, rgba(79, 127, 120, 0.18), transparent 55%),
+      linear-gradient(160deg, #0E2436 0%, #0B3A5B 58%, #0A1C2B 100%);
+    color: var(--txt);
+    padding: 72px 68px 60px;
+    display: flex; flex-direction: column;
+  }
+  /* 细网格底纹（呼应世界地图的经纬） */
+  .card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 90px 90px; background-position: 24px 24px;
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 19px; letter-spacing: 0.34em; color: var(--gold); font-weight: 600;
+  }
+  .eyebrow .rule { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(200,134,47,0.55), transparent); }
+  .brandline { margin-top: 10px; font-size: 16px; letter-spacing: 0.28em; color: var(--sub); }
+
+  .title { margin-top: 34px; font-size: 58px; font-weight: 700; line-height: 1.28; letter-spacing: 0.02em; }
+  .title em { font-style: normal; color: var(--gold); }
+  .sub { margin-top: 18px; font-size: 24px; line-height: 1.7; color: var(--sub); font-weight: 300; }
+
+  .shot {
+    margin-top: 36px; height: 556px; border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 34px 70px rgba(0,0,0,0.45), 0 6px 18px rgba(0,0,0,0.3);
+    background: #fff; position: relative; z-index: 2;
+  }
+  .shot img { width: 100%; height: auto; display: block; }
+
+  .foot {
+    margin-top: auto; display: flex; align-items: center; justify-content: space-between;
+    font-size: 19px; color: var(--sub); letter-spacing: 0.12em; position: relative; z-index: 2;
+  }
+  .foot .no { font-size: 22px; color: var(--gold); letter-spacing: 0.2em; font-weight: 600; }
+  .foot .r { display: flex; align-items: center; gap: 12px; }
+  .foot .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(200,134,47,0.8); }
+  .kicker { display: flex; align-items: center; gap: 14px; margin-top: 26px; position: relative; z-index: 2; }
+  .kicker .tag {
+    font-size: 18px; letter-spacing: 0.22em; color: var(--txt);
+    border: 1px solid var(--line); border-radius: 999px; padding: 10px 22px;
+  }
+  .kicker .tag b { color: var(--gold); font-weight: 600; }
+
+  /* 封面专用 */
+  .cover { justify-content: center; }
+  .cover .title { font-size: 92px; line-height: 1.3; letter-spacing: 0.03em; }
+  .cover .en { margin-top: 26px; font-size: 22px; letter-spacing: 0.5em; color: var(--sub); }
+  .cover .rs { display: flex; gap: 14px; margin-top: 56px; flex-wrap: wrap; }
+  .cover .rs span {
+    font-size: 19px; letter-spacing: 0.14em; padding: 12px 24px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--txt);
+  }
+  .cover .rs span i { font-style: normal; color: var(--gold); margin-right: 10px; }
+  .cover .url { margin-top: 64px; font-size: 21px; color: var(--sub); letter-spacing: 0.1em; }
+  .cover .url b { color: var(--gold); font-weight: 600; letter-spacing: 0.06em; }
+  .dash { position: absolute; right: -40px; top: 120px; opacity: 0.9; }
+  .zoom1 { transform: scale(1.06); transform-origin: 50% 0%; }
+  .zoom2 { transform: scale(1.12); transform-origin: 50% 30%; }
+  .zoom3 { transform: scale(1.12); transform-origin: 50% 0%; }
+</style>
+</head>
+<body>
+<div class="board">
+
+  <!-- 1 · 封面 -->
+  <div class="card cover" id="c1">
+    <svg class="dash" width="760" height="860" viewBox="0 0 760 860" fill="none" aria-hidden="true">
+      <path d="M60 760 C 180 700, 200 560, 330 520 C 460 480, 480 340, 600 300 C 660 280, 690 220, 720 170"
+        stroke="#C8862F" stroke-width="2.5" stroke-dasharray="2 14" stroke-linecap="round" opacity="0.55"/>
+      <circle cx="60" cy="760" r="7" fill="#C8862F"/>
+      <circle cx="330" cy="520" r="6" fill="rgba(200,134,47,.6)"/>
+      <circle cx="600" cy="300" r="6" fill="rgba(200,134,47,.45)"/>
+      <circle cx="720" cy="170" r="8" fill="#F3EFE8"/>
+    </svg>
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <div class="brandline">连接世界 · 重见此地</div>
+    <h1 class="title">把一次旅行，<br /><em>想清楚</em>再出发。</h1>
+    <div class="en">FROM A WISH TO A WORKABLE PLAN</div>
+    <div class="rs">
+      <span><i>R</i>Roam 漫游</span>
+      <span><i>R</i>Route 路径</span>
+      <span><i>R</i>Relate 相遇</span>
+      <span><i>R</i>Real 真实</span>
+      <span><i>R</i>Remember 记忆</span>
+    </div>
+    <div class="url">游戏化旅行规划 · <b>linkr-trip-workbench.app.workbuddy.host</b></div>
+    <div class="foot"><span>01 / COVER</span><span class="r"><span class="dot"></span>LINK-R WORLD</span></div>
+  </div>
+
+  <!-- 2 · 世界地图入口 -->
+  <div class="card" id="c2">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">在世界地图上，<br />跳着跳着就把旅行<em>想清楚了</em>。</h2>
+    <p class="sub">不摆一张长问卷。沿着一条发光的路径走七步，<br />每答一小步，你的旅行就成形一分。</p>
+    <div class="shot"><img src="../qa/moments/01-worldmap.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>START</b> · 游戏化旅程采集</span></div>
+    <div class="foot"><span class="no">02</span><span class="r"><span class="dot"></span>EXPLORE FIRST, FILL LATER</span></div>
+  </div>
+
+  <!-- 3 · 七个小问题 -->
+  <div class="card" id="c3">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">七个小问题，<br />代替<em>一张长问卷</em>。</h2>
+    <p class="sub">出发时间 · 出发地 · 目的地 · 天数 · 风格 · 个性化 · 确认。<br />跳过的都会留成草稿，回来接着走。</p>
+    <div class="shot"><img src="../qa/moments/02-where.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>7 STEPS</b> · 从念头到出发</span></div>
+    <div class="foot"><span class="no">03</span><span class="r"><span class="dot"></span>EXPLORE FIRST, FILL LATER</span></div>
+  </div>
+
+  <!-- 4 · 旅行画像 -->
+  <div class="card" id="c4">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">你的旅行画像，<br /><em>每一行都能改</em>。</h2>
+    <p class="sub">哪一行想改，点「改」就跳回去，不用重新来一遍。<br />确认那一刻，行程已经在生成。</p>
+    <div class="shot"><img src="../qa/moments/04-profile.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>PROFILE</b> · 旅行画像确认</span></div>
+    <div class="foot"><span class="no">04</span><span class="r"><span class="dot"></span>EXPLORE FIRST, FILL LATER</span></div>
+  </div>
+
+  <!-- 5 · 工作台 -->
+  <div class="card" id="c5">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">一句愿望，<br />换来一份<em>完整的计划</em>。</h2>
+    <p class="sub">主题、配色、穿搭建议、吃住行全包预算区间，<br />一眼先看懂这趟旅行长什么样。</p>
+    <div class="shot"><img class="zoom3" src="../qa/moments/05-workbench-top.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>WORKBENCH</b> · 行程工作台</span></div>
+    <div class="foot"><span class="no">05</span><span class="r"><span class="dot"></span>ONE WISH, ONE PLAN</span></div>
+  </div>
+
+  <!-- 6 · 逐日时间轴 -->
+  <div class="card" id="c6">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">几点出门、几点开玩、几点收尾，<br /><em>每个小时都算得清</em>。</h2>
+    <p class="sub">真实门店、开放时段、人均消费、步行里程——<br />每块都能编辑，改完预算与地图立即重算。</p>
+    <div class="shot"><img src="../qa/moments/06-itinerary.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>DAY BY DAY</b> · 逐日时间轴</span></div>
+    <div class="foot"><span class="no">06</span><span class="r"><span class="dot"></span>REAL PLACES, REAL HOURS</span></div>
+  </div>
+
+  <!-- 7 · 真实地图 -->
+  <div class="card" id="c7">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">当天的地点，<br />在<em>真实地图</em>上按天点亮。</h2>
+    <p class="sub">哪天走哪片、哪些还没排进去，一眼看穿；<br />附近的可去地点随点随加。</p>
+    <div class="shot"><img class="zoom1" src="../qa/moments/07-map.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>REAL MAP</b> · 腾讯地图实景</span></div>
+    <div class="foot"><span class="no">07</span><span class="r"><span class="dot"></span>SEE WHERE YOUR DAY GOES</span></div>
+  </div>
+
+  <!-- 8 · 特色住宿 -->
+  <div class="card" id="c8">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">住哪儿，<br />交给<em>你的行程</em>来排序。</h2>
+    <p class="sub">连锁、民宿、度假、精品，按你的行程与节奏重排，<br />再给一句「适不适合这趟」的实话。</p>
+    <div class="shot"><img src="../qa/moments/08-stay.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>STAY</b> · 特色住宿推荐</span></div>
+    <div class="foot"><span class="no">08</span><span class="r"><span class="dot"></span>STAY WHERE YOUR DAYS GO</span></div>
+  </div>
+
+  <!-- 9 · 行程图 -->
+  <div class="card" id="c9">
+    <div class="eyebrow">LINK-R WORLD<span class="rule"></span></div>
+    <h2 class="title">一键生成行程图，<br /><em>发给同行的人</em>。</h2>
+    <p class="sub">左行程 · 右地图 · 底部照片带，一图说完这趟旅行；<br />PNG 直接保存，群里一贴就懂。</p>
+    <div class="shot"><img class="zoom2" src="../qa/moments/09-poster.png" alt="" /></div>
+    <div class="kicker"><span class="tag"><b>SHARE</b> · 一键生成行程图</span></div>
+    <div class="foot"><span class="no">09</span><span class="r"><span class="dot"></span>LINK-R WORLD · 连接世界，重见此地</span></div>
+  </div>
+
+</div>
+</body>
+</html>
